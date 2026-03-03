@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-// ================= SUPERCLASS =================
+
 abstract class TaskItem {
 
     protected String title;
@@ -35,7 +35,7 @@ abstract class TaskItem {
     abstract int calculatePriority();
 }
 
-// ================= SUBCLASS 1 =================
+
 class HomeworkTask extends TaskItem {
 
     HomeworkTask(String title, int daysLeft, int hoursNeeded) {
@@ -56,7 +56,7 @@ class HomeworkTask extends TaskItem {
     }
 }
 
-// ================= SUBCLASS 2 =================
+
 class ExamTask extends TaskItem {
 
     ExamTask(String title, int daysLeft, int hoursNeeded) {
@@ -77,7 +77,7 @@ class ExamTask extends TaskItem {
     }
 }
 
-// ================= SUBCLASS 3 =================
+
 class ActivityTask extends TaskItem {
 
     ActivityTask(String title, int daysLeft, int hoursNeeded) {
@@ -98,7 +98,7 @@ class ActivityTask extends TaskItem {
     }
 }
 
-// ================= MAIN =================
+
 public class Main {
 
     public static void main(String[] args) {
@@ -126,7 +126,7 @@ public class Main {
             t.printInfo();
         }
 
-        // mark one as completed
+      
         tasks.get(1).complete();
 
         System.out.println("\n=== After Completing One Task ===");
@@ -135,7 +135,7 @@ public class Main {
             t.printInfo();
         }
 
-        // calculate remaining hours
+  
         int total = 0;
 
         for (TaskItem t : tasks) {
@@ -146,7 +146,7 @@ public class Main {
 
         System.out.println("\nTotal Remaining Hours: " + total);
 
-        // find highest priority
+      
         TaskItem highest = tasks.get(0);
 
         for (TaskItem t : tasks) {
