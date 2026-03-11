@@ -1,205 +1,106 @@
 import java.util.*;
+import java.util.stream.*;
 
-public class ProjectMain {
+class Student {
+    String name;
+    String group;
+    double gpa;
 
-    static ArrayDeque<String> line = new ArrayDeque<>();
-    static HashMap<String, Integer> arrivalTime = new HashMap<>();
+    Student(String name, String group, double gpa) {
+        this.name = name;
+        this.group = group;
+        this.gpa = gpa;
+    }
 
-    static int currentTime = 0;
-    static int servedCount = 0;
-    static long totalWait = 0;
+    public String toString() {
+        return name + " (" + group + ", GPA: " + gpa + ")";
+    }
+}
+
+public class StreamPractice {
 
     public static void main(String[] args) {
 
-        Scanner sc = new Scanner(System.in);
+        // list of integers
+        List<Integer> numbers = Arrays.asList(3, 6, 8, 1, 4, 6, 8, 2);
 
-        printHelp();
+        // list of strings
+        List<String> words = Arrays.asList("apple", "banana", "avocado", "pear", "apricot");
 
-        while (true) {
+        // list of students
+        List<Student> students = Arrays.asList(
+                new Student("Aliya", "SE-1", 3.8),
+                new Student("Dana", "SE-1", 3.2),
+                new Student("Amir", "SE-2", 3.9),
+                new Student("Sara", "SE-2", 3.4),
+                new Student("Bek", "SE-1", 3.7)
+        );
 
-            System.out.print("> ");
-            String command = sc.next();
+        // filter even numbers
+        List<Integer> evenNumbers = numbers.stream()
+                .filter(n -> n % 2 == 0)
+                .toList();
+        System.out.println("Even numbers: " + evenNumbers);
 
-            if (command.equalsIgnoreCase("HELP")) {
-                printHelp();
-            }
+        // convert strings to uppercase
+        List<String> upperWords = words.stream()
+                .map(String::toUpperCase)
+                .toList();
+        System.out.println("Uppercase: " + upperWords);
 
-            else if (command.equalsIgnoreCase("ARRIVE")) {
-                if (!sc.hasNext()) {
-                    System.out.println("Usage: ARRIVE <name>");
-                    continue;
-                }
-                String name = sc.next();
-                arrive(name);
-            }
+        // count strings starting with 'a'
+        long countA = words.stream()
+                .filter(w -> w.startsWith("a"))
+                .count();
+        System.out.println("Words starting with 'a': " + countA);
 
-            else if (command.equalsIgnoreCase("VIP_ARRIVE")) {
-                if (!sc.hasNext()) {
-                    System.out.println("Usage: VIP_ARRIVE <name>");
-                    continue;
-                }
-                String name = sc.next();
-                vipArrive(name);
-            }
+        // sort numbers in descending order
+        List<Integer> sortedDesc = numbers.stream()
+                .sorted(Comparator.reverseOrder())
+                .toList();
+        System.out.println("Sorted descending: " + sortedDesc);
 
-            else if (command.equalsIgnoreCase("SERVE")) {
-                serve();
-            }
+        // find max and min numbers
+        int max = numbers.stream().max(Integer::compare).get();
+        int min = numbers.stream().min(Integer::compare).get();
+        System.out.println("Max: " + max);
+        System.out.println("Min: " + min);
 
-            else if (command.equalsIgnoreCase("LEAVE")) {
-                if (!sc.hasNext()) {
-                    System.out.println("Usage: LEAVE <name>");
-                    continue;
-                }
-                String name = sc.next();
-                leave(name);
-            }
+        // remove duplicate elements
+        List<Integer> uniqueNumbers = numbers.stream()
+                .distinct()
+                .toList();
+        System.out.println("Unique numbers: " + uniqueNumbers);
 
-            else if (command.equalsIgnoreCase("PEEK")) {
-                peek();
-            }
+        // concatenate strings with comma
+        String joined = words.stream()
+                .collect(Collectors.joining(", "));
+        System.out.println("Joined words: " + joined);
 
-            else if (command.equalsIgnoreCase("SIZE")) {
-                System.out.println("Size: " + line.size());
-            }
+        // group students by group field
+        Map<String, List<Student>> grouped =
+                students.stream()
+                        .collect(Collectors.groupingBy(s -> s.group));
+        System.out.println("Grouped students: " + grouped);
 
-            else if (command.equalsIgnoreCase("PRINT")) {
-                System.out.println("Line (front -> back): " + line);
-            }
+        // calculate average gpa
+        double avgGpa = students.stream()
+                .mapToDouble(s -> s.gpa)
+                .average()
+                .orElse(0);
+        System.out.println("Average GPA: " + avgGpa);
 
-            else if (command.equalsIgnoreCase("TICK")) {
-                if (!sc.hasNextInt()) {
-                    System.out.println("Usage: TICK <minutes>");
-                    continue;
-                }
-                int minutes = sc.nextInt();
-                tick(minutes);
-            }
+        // find first 3 students with gpa > 3.5
+        List<Student> topStudents = students.stream()
+                .filter(s -> s.gpa > 3.5)
+                .limit(3)
+                .toList();
+        System.out.println("Top students: " + topStudents);
 
-            else if (command.equalsIgnoreCase("STATS")) {
-                stats();
-            }
-
-            else if (command.equalsIgnoreCase("EXIT")) {
-                System.out.println("Goodbye!");
-                break;
-            }
-
-            else {
-                System.out.println("Unknown command. Type HELP.");
-                sc.nextLine();
-            }
-        }
-
-        sc.close();
-    }
-
-    static void arrive(String name) {
-
-        if (arrivalTime.containsKey(name)) {
-            System.out.println("Name already in system");
-            return;
-        }
-
-        line.addLast(name);
-        arrivalTime.put(name, currentTime);
-
-        System.out.println(name + " arrived at time " + currentTime + ". Line size = " + line.size());
-    }
-
-    static void vipArrive(String name) {
-
-        if (arrivalTime.containsKey(name)) {
-            System.out.println("Name already in system");
-            return;
-        }
-
-        line.addFirst(name);
-        arrivalTime.put(name, currentTime);
-
-        System.out.println("VIP " + name + " arrived at time " + currentTime + ". Line size = " + line.size());
-    }
-
-    static void serve() {
-
-        if (line.isEmpty()) {
-            System.out.println("No one to serve.");
-            return;
-        }
-
-        String name = line.removeFirst();
-
-        int arrival = arrivalTime.get(name);
-        int wait = currentTime - arrival;
-
-        servedCount++;
-        totalWait += wait;
-
-        arrivalTime.remove(name);
-
-        System.out.println("Served: " + name + " (waited " + wait + " min).");
-    }
-
-    static void leave(String name) {
-
-        if (!line.contains(name)) {
-            System.out.println("Not found");
-            return;
-        }
-
-        line.removeFirstOccurrence(name);
-        arrivalTime.remove(name);
-
-        System.out.println(name + " left the line. Line size = " + line.size());
-    }
-
-    static void peek() {
-
-        if (line.isEmpty()) {
-            System.out.println("Line is empty.");
-            return;
-        }
-
-        System.out.println("Next: " + line.peekFirst());
-    }
-
-    static void tick(int minutes) {
-
-        if (minutes < 0) {
-            System.out.println("Minutes must be non-negative.");
-            return;
-        }
-
-        currentTime += minutes;
-
-        System.out.println("Time advanced by " + minutes + " minutes. Current time = " + currentTime);
-    }
-
-    static void stats() {
-
-        if (servedCount == 0) {
-            System.out.println("Served count = 0, Avg wait = 0.00 min.");
-            return;
-        }
-
-        double avg = (double) totalWait / servedCount;
-
-        System.out.printf("Served count = %d, Avg wait = %.2f min.%n", servedCount, avg);
-    }
-
-    static void printHelp() {
-
-        System.out.println("Cafeteria Line Manager — Commands:");
-        System.out.println("HELP");
-        System.out.println("ARRIVE <name>");
-        System.out.println("VIP_ARRIVE <name>");
-        System.out.println("SERVE");
-        System.out.println("LEAVE <name>");
-        System.out.println("PEEK");
-        System.out.println("SIZE");
-        System.out.println("PRINT");
-        System.out.println("TICK <minutes>");
-        System.out.println("STATS");
-        System.out.println("EXIT");
+        // count students with gpa greater than 3.5
+        long countStudents = students.stream()
+                .filter(s -> s.gpa > 3.5)
+                .count();
+        System.out.println("Students with GPA > 3.5: " + countStudents);
     }
 }
